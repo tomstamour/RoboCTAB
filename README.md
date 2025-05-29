@@ -1,2 +1,4 @@
 # RoboCTAB
-This script automates an OT2 Opentrons robot to extract DNA from samples using the CTAB extraction method as described by Doyle and Doyle, 1987.
+This script automates an Opentrons robot to extract DNA from samples using the CTAB extraction method (D. & D., 1987).
+
+Doyle, J. J., and J. L. Doyle. (1987). A rapid DNA isolation procedure for small quantities of fresh leaf tissue. Phytochemical Bulletin 19: 11–15
