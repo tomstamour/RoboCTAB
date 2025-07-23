@@ -28,7 +28,7 @@ from opentrons import types
 import math
 import time
 
-metadata = {'protocolName': 'RoboCTAB -- v5.0 --', 'apiLevel': '2.15'}
+metadata = {'protocolName': 'RoboCTAB -- v1.0 --', 'apiLevel': '2.15'}
 
 def get_values(*names):
     import json
