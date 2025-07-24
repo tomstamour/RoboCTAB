@@ -4,9 +4,6 @@ An automated CTAB (Cetyltrimethylammonium Bromide) DNA extraction protocol desig
 
 **Read the full method article here:** https://www.mdpi.com/2223-7747/14/15/2263
 
-**Please cite this automated method as follow:**
-***"Recent advances in robotic DNA extraction have improved throughput for large-scale genotyping studies (Boucher St-Amour et al., 2025)."***
-
 ## Key Features
 
 - **Multi-plate Processing**: Handle 1 to 4 sample plates (96-well format) in a single run
@@ -54,6 +51,11 @@ The protocol consists of several main steps:
 This automated protocol is based on the CTAB DNA extraction method originally described by:
 
 Doyle, J.J. and Doyle, J.L. (1987). A rapid DNA isolation procedure for small quantities of fresh leaf tissue. *Phytochemical Bulletin*, 19, 11-15.
+
+
+**Please cite this automated method as follow:**
+---
+***"Recent advances in robotic DNA extraction have improved throughput for large-scale genotyping studies (Boucher St-Amour et al., 2025)."***
 
 ## Contact
 
