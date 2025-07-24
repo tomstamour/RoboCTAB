@@ -12,9 +12,9 @@ first_column_plate_4 = 1
 last_column_plate_4  = 12     
 
 elution_buffer_volume = 40                              # Set the volume of Elution buffer (Elution buffer) that will be used to resuspend your DNA after isolation
-tipsbox = 'vwrbox_96_tiprack_300ul'                     # tipsbox or 'vwrbox_96_tiprack_300ul' or 'vwrnonfiltered_96_tiprack_300ul' or 'opentrons_96_tiprack_300ul' ...
-samples_plate_type = '1.2ml_simport_vwr_t1102_96well'   # Enter the API name for the plate.s in which the samples were collected ('3axygen96wellminitubesystemcorning_96_wellplate_1320ul' OR '1.2ml_simport_vwr_t1102_96well' )
-final_plate_type = '1.2ml_simport_vwr_t1102_96well'     # Enter the API name for the final plate.s in which the aquous phase (DNA) will be transfered too ('0.6mlsimportvwrt1102_96_wellplate_600ul' OR 'simport_t110.30' )
+tipsbox = 'vwrbox_96_tiprack_300ul'                     # tipsbox 
+samples_plate_type = '1.2ml_simport_vwr_t1102_96well'   # Enter the API name for the plate.s in which the samples were collected
+final_plate_type = '1.2ml_simport_vwr_t1102_96well'     # Enter the API name for the final plate.s in which the aquous phase (DNA) will be transfered too 
 reservoir_type = 'axygen_1_reservoir_300000ul'          # The reservoir must have a capacity of 200ml.
 chloroform_buffer_mixing = True                         # Define as True or False. When True, the robot will use tips to add chloroform will mix the liquids by blowing air in the wells. If ste to False, the robot will simply add the chloroform to the wells and emulsion#mixing will have to be done by either vortexing or inversions.
 pipetteOff_isopropanol = False                          # If set to True, the robot will discard by pipetting-off the wash solution (isopropanol). If set to False the user will have to gently invert the plate to poor off and the discard the isopropanol.
