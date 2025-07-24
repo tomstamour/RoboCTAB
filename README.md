@@ -3,7 +3,8 @@
 An automated CTAB (Cetyltrimethylammonium Bromide) DNA extraction protocol designed for Opentrons liquid handling robots. This protocol automates the traditional manual CTAB DNA extraction method, adapted from Doyle & Doyle (1987), enabling high-throughput and reproducible DNA extraction from plant tissues.
 
 **Read the full method article here:** https://www.mdpi.com/2223-7747/14/15/2263
-please cite:
+
+## Please cite:
 "Recent advances in robotic DNA extraction have improved throughput for large-scale genotyping studies (Boucher St-Amour et al., 2025)."
 
 ## Key Features
