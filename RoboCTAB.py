@@ -1,9 +1,10 @@
-# CTAB DNA extraction protocol fot the OT-2 robot (Adapted from Doyle and Doyle 1987). 
+# RoboCTAB DNA extraction protocol for the OT-2 robot from Opentrons. Read the full method article here: https://lnkd.in/g_JsPhTM
+# Automated version of the CTAB DNA extraction method, adapted from J. J., and J. L. Doyle. (1987). 
 
 ############################################################
-# Enter your values at lines 5 to 22 
-first_column_plate_1 = 1                                 #The first column (vertical) in plate 1 for which you have samples.
-last_column_plate_1  = 12                                #The last column (vertical) in plate 1 for which you have samples.
+# Enter your values at lines 6 to 23 
+first_column_plate_1 = 1                                #The first column in plate 1 for which you have samples.
+last_column_plate_1  = 12                               #The last column in plate 1 for which you have samples.
 first_column_plate_2 = 1
 last_column_plate_2  = 12
 first_column_plate_3 = 1
@@ -11,15 +12,15 @@ last_column_plate_3  = 12
 first_column_plate_4 = 1
 last_column_plate_4  = 12     
 
-elution_buffer_volume = 40                              # Set the volume of Elution buffer (Elution buffer) that will be used to resuspend your DNA after isolation
-tipsbox = 'vwrbox_96_tiprack_300ul'                     # tipsbox 
-samples_plate_type = '1.2ml_simport_vwr_t1102_96well'   # Enter the API name for the plate.s in which the samples were collected
-final_plate_type = '1.2ml_simport_vwr_t1102_96well'     # Enter the API name for the final plate.s in which the aquous phase (DNA) will be transfered too 
-reservoir_type = 'axygen_1_reservoir_300000ul'          # The reservoir must have a capacity of 200ml.
-chloroform_buffer_mixing = True                         # Define as True or False. When True, the robot will use tips to add chloroform will mix the liquids by blowing air in the wells. If ste to False, the robot will simply add the chloroform to the wells and emulsion#mixing will have to be done by either vortexing or inversions.
+elution_buffer_volume = 40                              # Set the volume of Elution buffer (uL) that will be used to resuspend your DNA after isolation.
+tipsbox = 'opentrons_96_tiprack_300ul'                  # Enter the API name of you tipsrack labware (300 uL without filters needed). 
+samples_plate_type = '1.2ml_simport_vwr_t1102_96well'   # Enter the API name for the plate.s in which the samples were collected. This protocol is optimized for 1.2ml 96-well plates.
+final_plate_type = '1.2ml_simport_vwr_t1102_96well'     # Enter the API name for the final plate.s in which the aquous phase (DNA) will be transfered too. This protocol is optimized for 1.2ml 96-well plates.
+reservoir_type = 'agilent_1_reservoir_290ml'            # The reservoir must have a minimum capacity of 200ml.
+chloroform_buffer_mixing = 'pipette_mixing'             # String: 'pipette_mixing' or 'bubble_mixing' or 'no_mixing'. When 'pipette_mixing' is selected, the robot will mix by doing inspirations and expulsions in the liquids. Select this option if your samples have 5mg or less of WELL GROUNDED material, otherwise the pipettes could block. When selecting 'bubble_mixing' the robot will blow air in the liquids. Select this method if your samples are over 5 mg and the grinding is poor. When selecting 'no_mixing', the robot will simply add the chloroform to the wells and emulsion/mixing will have to be done by either vortexing or inversions.
 pipetteOff_isopropanol = False                          # If set to True, the robot will discard by pipetting-off the wash solution (isopropanol). If set to False the user will have to gently invert the plate to poor off and the discard the isopropanol.
 pipetteOff_ethanol = False                              # If set to True, the robot will discard by pipetting-off the wash solution (ethanol). If set to False the user will have to gently invert the plate to poor off and the discard the ethanol.
-distance_interstice_to_bottom = 13.75                   # To obtain this value, add 400uL of water to an empty tube of the "samples_plate_type" and measure the heigth in mililiters of the liquid from the botom of the tube.
+distance_interstice_to_bottom = 0                       # To obtain this value, add 400uL of water to an empty tube of the "samples_plate_type" and measure the heigth (mm) of the liquid from the botom of the tube.
 ############################################################
 
 
@@ -29,7 +30,7 @@ from opentrons import types
 import math
 import time
 
-metadata = {'protocolName': 'RoboCTAB -- v1.0 --', 'apiLevel': '2.15'}
+metadata = {'protocolName': 'RoboCTAB -- v1.1 --', 'apiLevel': '2.15'}
 
 def get_values(*names):
     import json
@@ -202,7 +203,53 @@ def run(ctx):
         else:
             p300.drop_tip()
 
-    def dispensing_chloroform_and_mixing():
+    def dispensing_chloroform_and_pipetteMixing():
+        
+        # Loop through the plates
+        for plate, tiprack in zip(plates, mixing_tipracks):
+            
+            # Loop through the wells in the plate
+            for samples_wells, tips_column in zip(plate, tiprack):
+                
+                p300.default_speed = 400
+
+                p300.pick_up_tip(location = tips_column)
+
+                 # Aspirating the water "Liquid-Cap"
+                p300.aspirate(40, water_reservoir_01.bottom(z = 2.5), rate = 4) 
+                p300.aspirate(55, water_reservoir_01.top(z = 5), rate = 4) 
+
+                # First dispensing
+                p300.aspirate(200, reservoir_01.bottom(z = 2.5), rate = 2) 
+                p300.aspirate(5, location = reservoir_01.top(z = 2.5)) 
+                p300.dispense(195, location = samples_wells.top(z = 9), rate = 1)
+
+                # Second dispensing
+                p300.aspirate(193, reservoir_01.bottom(z = 2.5), rate = 2) 
+                p300.aspirate(2, location = reservoir_01.top(z = 2.5))
+                p300.dispense(195, location = samples_wells.bottom(z = distance_interstice_to_bottom + 6), rate = 1)
+                
+                # This loop will mix the chloroform and extraction buffer by blowing air in the liquids
+                p300.aspirate(130, location = samples_wells.bottom(z = distance_interstice_to_bottom - 7), rate = 0.7)
+                p300.default_speed = 400
+                i = 0                                   
+                while i < 5:  
+                    p300.dispense(130, location = samples_wells.bottom(z = distance_interstice_to_bottom + 6), rate = 2)
+                    p300.aspirate(130, location = samples_wells.bottom(z = distance_interstice_to_bottom - 7), rate = 0.7) 
+                    i += 1
+
+                p300.dispense(130, location = samples_wells.bottom(z = distance_interstice_to_bottom + 6), rate = 2)
+                
+                p300.touch_tip(samples_wells, v_offset = -3, radius = 1.2, speed = 40)
+
+                p300.default_speed = 200
+                p300.drop_tip(location = tips_column, home_after = False) # drop_tip() with no argument will drop the tips in the trash.
+                p300.default_speed = 400
+
+    time_dispensing_chloroform_and_bubbleMixing = 77             # Defining a time (s) variable to calculate the duration of the step
+
+
+    def dispensing_chloroform_and_bubbleMixing():
         
         # Loop through the plates
         for plate, tiprack in zip(plates, mixing_tipracks):
@@ -226,18 +273,18 @@ def run(ctx):
                 # Second dispensing
                 p300.aspirate(200, reservoir_01.bottom(z = 2.5), rate = 4) 
                 p300.aspirate(5, location = reservoir_01.top(z = 2.5))
-                p300.dispense(205, location = samples_wells.bottom(z = 12), rate = 1)
+                p300.dispense(205, location = samples_wells.bottom(z = distance_interstice_to_bottom - 2), rate = 1)
                 
                 # This loop will mix the chloroform and extraction buffer by blowing air in the liquids
                 p300.aspirate(205, location = samples_wells.top(z = 0), rate = 4)
                 p300.default_speed = 400
                 i = 0                                   
                 while i < 10:  
-                    p300.dispense(160, location = samples_wells.bottom(z = 12), rate = 1)
+                    p300.dispense(160, location = samples_wells.bottom(z = distance_interstice_to_bottom - 2), rate = 1)
                     p300.aspirate(160, location = samples_wells.top(z = 0), rate = 4) 
                     i += 1
 
-                p300.dispense(180, location = samples_wells.bottom(z = 12), rate = 1)
+                p300.dispense(180, location = samples_wells.bottom(z = distance_interstice_to_bottom - 2), rate = 1)
                 
                 p300.touch_tip(samples_wells, v_offset = -3, radius = 1.2, speed = 40)
 
@@ -245,7 +292,7 @@ def run(ctx):
                 p300.drop_tip(location = tips_column, home_after = False) # drop_tip() with no argument will drop the tips in the trash.
                 p300.default_speed = 400
 
-    time_dispensing_chloroform_and_mixing = 77             # Defining a time (s) variable to calculate the duration of the step
+    time_dispensing_chloroform_and_bubbleMixing = 77             # Defining a time (s) variable to calculate the duration of the step
 
     def dispensing_chloroform():
         p300.pick_up_tip()
@@ -622,8 +669,7 @@ def run(ctx):
         #############################################################################################################
         #                                           DNA extraction actions
         #############################################################################################################
-
-        plates_sites='1'        
+        
         samples_sites = '1'
         tipracks_sites = '2, 5 & 7'
         mixing_tipracks_sites = '2'
@@ -634,7 +680,7 @@ def run(ctx):
         ctx.pause(comment_reagents_2(AlcoholIsoamyl, Chloroform, volume_of_water1, volume_of_ethanol95))
         ctx.pause('''Place full Isopropanol reservoir at -20°C''')
         ctx.pause(comment_beginning)
-        ctx.pause(comment_1(plates_sites, samples_sites, tipracks_sites, water_reservoir_site))
+        ctx.pause(comment_1(samples_sites, samples_sites, tipracks_sites, water_reservoir_site))
         ctx.pause(comment_2(samples_sites))
         
         water_distribute(all_samples, volume = 50, bottom_dispense_heigth = 40, return_tip = True, source =  water_reservoir_01)
@@ -648,14 +694,18 @@ def run(ctx):
         
         ctx.pause('''Seal plates with sealing tape and invert plates 10 times. Spin plates then remove sealing tape and incubate the plates (65C, 60 min)''')
         ctx.pause('''After incubation, place the plate back on site 1 and place Chloroform reservoir on site 3 and water reservoir on site 6''')
-        time_estimation = str(truncate((time_dispensing_chloroform_and_mixing * total_number_of_columns / 60), 1))
+        time_estimation = str(truncate((time_dispensing_chloroform_and_bubbleMixing * total_number_of_columns / 60), 1))
         ctx.pause(comment_start_Chloro_dispensing(time_estimation))
 
-        if chloroform_buffer_mixing == True:
-            dispensing_chloroform_and_mixing()
+        if chloroform_buffer_mixing == 'pipette_mixing':
+            dispensing_chloroform_and_pipetteMixing()
             ctx.pause('''Centrifugate the plate (6000rpm, 10 min).''') 
             ctx.pause(comment_decontaminate_chloroform(mixing_tipracks_sites))
-        if chloroform_buffer_mixing == False:
+        if chloroform_buffer_mixing == 'bubble_mixing':
+            dispensing_chloroform_and_bubbleMixing()
+            ctx.pause('''Centrifugate the plate (6000rpm, 10 min).''') 
+            ctx.pause(comment_decontaminate_chloroform(mixing_tipracks_sites))
+        if chloroform_buffer_mixing == 'no_mixing':
             dispensing_chloroform()
             ctx.pause('''Mix (vortex carefully) then centrifugate the plate (6000rpm, 10 min).''')
         
@@ -773,7 +823,6 @@ def run(ctx):
             #                                           DNA extraction actions
             #############################################################################################################
             
-            plates_sites = '1 & 2'
             samples_sites = '1 & 2'
             tipracks_sites = '6, 7, 8, 9 & 10'
             mixing_tipracks_sites = '6 & 9'
@@ -784,7 +833,7 @@ def run(ctx):
             ctx.pause(comment_reagents_2(AlcoholIsoamyl, Chloroform, volume_of_water1, volume_of_ethanol95))
             ctx.pause('''Place full Isopropanol reservoir at -20°C''')
             ctx.pause(comment_beginning)
-            ctx.pause(comment_1(plates_sites, samples_sites, tipracks_sites, water_reservoir_site))          
+            ctx.pause(comment_1(samples_sites, samples_sites, tipracks_sites, water_reservoir_site))          
             ctx.pause(comment_2(samples_sites))
             
             water_distribute(all_samples, volume = 50, bottom_dispense_heigth = 40, return_tip = True, source =  water_reservoir_01)
@@ -798,16 +847,20 @@ def run(ctx):
 
             ctx.pause('''Seal plates with sealing tape and invert plates 10 times. Spin plates then remove sealing tape and incubate the plates (65C, 60 min)''')
             ctx.pause('''After incubation place the plates back to respective sites 1 & 2 and place Chloroform reservoir on site 3 and place water reservoir on site 11''')
-            time_estimation = str(truncate((time_dispensing_chloroform_and_mixing * total_number_of_columns / 60), 1))
+            time_estimation = str(truncate((time_dispensing_chloroform_and_bubbleMixing * total_number_of_columns / 60), 1))
             ctx.pause(comment_start_Chloro_dispensing(time_estimation))
 
-            if chloroform_buffer_mixing == True:
-                dispensing_chloroform_and_mixing()
+            if chloroform_buffer_mixing == 'pipette_mixing':
+                dispensing_chloroform_and_pipetteMixing()
                 ctx.pause('''Centrifugate the plate (6000rpm, 10 min).''') 
                 ctx.pause(comment_decontaminate_chloroform(mixing_tipracks_sites))
-            if chloroform_buffer_mixing == False:
+            if chloroform_buffer_mixing == 'bubble_mixing':
+                dispensing_chloroform_and_bubbleMixing()
+                ctx.pause('''Centrifugate the plate (6000rpm, 10 min).''') 
+                ctx.pause(comment_decontaminate_chloroform(mixing_tipracks_sites))
+            if chloroform_buffer_mixing == 'no_mixing':
                 dispensing_chloroform()
-                ctx.pause('''Mix (vortex carefully) then Centrifugate the plate (6000rpm, 10 min).''')
+                ctx.pause('''Mix (vortex carefully) then centrifugate the plate (6000rpm, 10 min).''')
 
             ctx.pause('''When the 10 minutes centrifugation is done place the sample plates back to respective sites 1 & 2 and place empty plates (1.0ml 96-Deep well) on sites 4 and 5 (label the plates)''')
             
@@ -958,17 +1011,20 @@ def run(ctx):
                 
                 ctx.pause('''Seal plates with sealing tape and invert plates 10 times. Spin plates then remove sealing tape and incubate plates (65C, 60 min)''')
                 ctx.pause('''After incubation, place the plates back to respective sites 1, 2, 3 and place Chloroform reservoir on site 10 and place water reservoir on site 11)''')
-                time_estimation = str(truncate((time_dispensing_chloroform_and_mixing * total_number_of_columns / 60), 1))
+                time_estimation = str(truncate((time_dispensing_chloroform_and_bubbleMixing * total_number_of_columns / 60), 1))
                 ctx.pause(comment_start_Chloro_dispensing(time_estimation))
                 
-                if chloroform_buffer_mixing == True:
-                    dispensing_chloroform_and_mixing()
+                if chloroform_buffer_mixing == 'pipette_mixing':
+                    dispensing_chloroform_and_pipetteMixing()
                     ctx.pause('''Centrifugate the plate (6000rpm, 10 min).''') 
                     ctx.pause(comment_decontaminate_chloroform(mixing_tipracks_sites))
-                    ctx.pause('''Remove empty tip racks on sites 7, 8 and 9 and place new tip racks on sites 7, 8 and 9''')
-                if chloroform_buffer_mixing == False:
+                if chloroform_buffer_mixing == 'bubble_mixing':
+                    dispensing_chloroform_and_bubbleMixing()
+                    ctx.pause('''Centrifugate the plate (6000rpm, 10 min).''') 
+                    ctx.pause(comment_decontaminate_chloroform(mixing_tipracks_sites))
+                if chloroform_buffer_mixing == 'no_mixing':
                     dispensing_chloroform()
-                    ctx.pause('''Mix (vortex carefully) then Centrifugate the plate (6000rpm, 10 min).''')
+                    ctx.pause('''Mix (vortex carefully) then centrifugate the plate (6000rpm, 10 min).''')
                 
                 for tiprack in [tiprack_1, tiprack_2, tiprack_3]:
                     ctx.move_labware(labware = tiprack, new_location = protocol_api.OFF_DECK)
@@ -1126,16 +1182,20 @@ def run(ctx):
                     
                     ctx.pause('''Seal plates with sealing tape and invert plates 10 times. Spin plates then remove sealing tape and incubate the plates (65C, 60 min)''')
                     ctx.pause('''After incubation, place the plate back to respective sites 1, 2, 3, 7 and place Chloroform reservoir on site 11 and place water reservoir on site 10)''')
-                    time_estimation = str(truncate((time_dispensing_chloroform_and_mixing * total_number_of_columns / 60), 1))
+                    time_estimation = str(truncate((time_dispensing_chloroform_and_bubbleMixing * total_number_of_columns / 60), 1))
                     ctx.pause(comment_start_Chloro_dispensing(time_estimation))
        
-                    if chloroform_buffer_mixing == True:
-                        dispensing_chloroform_and_mixing()
+                    if chloroform_buffer_mixing == 'pipette_mixing':
+                        dispensing_chloroform_and_pipetteMixing()
                         ctx.pause('''Centrifugate the plate (6000rpm, 10 min).''') 
                         ctx.pause('''Remove tip racks on sites 5, 6, 8 & 9 (dispose tips, clean tipracks) and place new tipracks on sites 8 & 9''')
-                    if chloroform_buffer_mixing == False:
+                    if chloroform_buffer_mixing == 'bubble_mixing':
+                        dispensing_chloroform_and_bubbleMixing()
+                        ctx.pause('''Centrifugate the plate (6000rpm, 10 min).''') 
+                        ctx.pause('''Remove tip racks on sites 5, 6, 8 & 9 (dispose tips, clean tipracks) and place new tipracks on sites 8 & 9''')
+                    if chloroform_buffer_mixing == 'no_mixing':
                         dispensing_chloroform()
-                        ctx.pause('''Mix (vortex carefully) then Centrifugate the plate (6000rpm, 10 min).''')
+                        ctx.pause('''Mix (vortex carefully) then centrifugate the plate (6000rpm, 10 min).''')
                     
                     ctx.pause('''Place empty plates (1.0ml 96-Deep well)s on sites 4, 5, 6 & 10 (identify the plates and mark site number)''')
 
