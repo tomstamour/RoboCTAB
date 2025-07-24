@@ -623,7 +623,7 @@ def run(ctx):
         #                                           DNA extraction actions
         #############################################################################################################
 
-        plates='1'        
+        plates_sites='1'        
         samples_sites = '1'
         tipracks_sites = '2, 5 & 7'
         mixing_tipracks_sites = '2'
@@ -634,7 +634,7 @@ def run(ctx):
         ctx.pause(comment_reagents_2(AlcoholIsoamyl, Chloroform, volume_of_water1, volume_of_ethanol95))
         ctx.pause('''Place full Isopropanol reservoir at -20°C''')
         ctx.pause(comment_beginning)
-        ctx.pause(comment_1(plates, samples_sites, tipracks_sites, water_reservoir_site))
+        ctx.pause(comment_1(plates_sites, samples_sites, tipracks_sites, water_reservoir_site))
         ctx.pause(comment_2(samples_sites))
         
         water_distribute(all_samples, volume = 50, bottom_dispense_heigth = 40, return_tip = True, source =  water_reservoir_01)
@@ -773,7 +773,7 @@ def run(ctx):
             #                                           DNA extraction actions
             #############################################################################################################
             
-            plates = '1 & 2'
+            plates_sites = '1 & 2'
             samples_sites = '1 & 2'
             tipracks_sites = '6, 7, 8, 9 & 10'
             mixing_tipracks_sites = '6 & 9'
@@ -784,7 +784,7 @@ def run(ctx):
             ctx.pause(comment_reagents_2(AlcoholIsoamyl, Chloroform, volume_of_water1, volume_of_ethanol95))
             ctx.pause('''Place full Isopropanol reservoir at -20°C''')
             ctx.pause(comment_beginning)
-            ctx.pause(comment_1(plates, samples_sites, tipracks_sites, water_reservoir_site))          
+            ctx.pause(comment_1(plates_sites, samples_sites, tipracks_sites, water_reservoir_site))          
             ctx.pause(comment_2(samples_sites))
             
             water_distribute(all_samples, volume = 50, bottom_dispense_heigth = 40, return_tip = True, source =  water_reservoir_01)
