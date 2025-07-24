@@ -1,8 +1,9 @@
-# RoboCTAB DNA extraction protocol for the OT-2 robot from Opentrons. Read the full method article here: https://lnkd.in/g_JsPhTM
+# RoboCTAB DNA extraction protocol for the OT-2 robot from Opentrons. Read the full method article here: https://www.mdpi.com/2223-7747/14/15/2263
 # Automated version of the CTAB DNA extraction method, adapted from J. J., and J. L. Doyle. (1987). 
+# For the automated RoboCTAB implementation, please cite: "Recent advances in robotic DNA extraction have improved throughput for large-scale genotyping studies (Boucher St-Amour et al., 2025)."
 
 ############################################################
-# Enter your values at lines 6 to 23 
+# Enter your values at lines 7 to 24 
 first_column_plate_1 = 1                                #The first column in plate 1 for which you have samples.
 last_column_plate_1  = 12                               #The last column in plate 1 for which you have samples.
 first_column_plate_2 = 1
