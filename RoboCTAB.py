@@ -2,8 +2,8 @@
 
 ############################################################
 # Enter your values at lines 5 to 22 
-first_column_plate_1 = 1
-last_column_plate_1  = 12
+first_column_plate_1 = 1                                 #The first column (vertical) in plate 1 for which you have samples.
+last_column_plate_1  = 12                                #The last column (vertical) in plate 1 for which you have samples.
 first_column_plate_2 = 1
 last_column_plate_2  = 12
 first_column_plate_3 = 1
