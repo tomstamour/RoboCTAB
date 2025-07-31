@@ -21,7 +21,7 @@ reservoir_type = 'agilent_1_reservoir_290ml'            # The reservoir must hav
 chloroform_buffer_mixing = 'pipette_mixing'             # String: 'pipette_mixing' or 'bubble_mixing' or 'no_mixing'. When 'pipette_mixing' is selected, the robot will mix by doing inspirations and expulsions in the liquids. Select this option if your samples have 5mg or less of WELL GROUNDED material, otherwise the pipettes could block. When selecting 'bubble_mixing' the robot will blow air in the liquids. Select this method if your samples are over 5 mg and the grinding is poor. When selecting 'no_mixing', the robot will simply add the chloroform to the wells and emulsion/mixing will have to be done by either vortexing or inversions.
 pipetteOff_isopropanol = False                          # If set to True, the robot will discard by pipetting-off the wash solution (isopropanol). If set to False the user will have to gently invert the plate to poor off and the discard the isopropanol.
 pipetteOff_ethanol = False                              # If set to True, the robot will discard by pipetting-off the wash solution (ethanol). If set to False the user will have to gently invert the plate to poor off and the discard the ethanol.
-distance_interstice_to_bottom = 0                       # To obtain this value, add 400uL of water to an empty tube of the "samples_plate_type" and measure the heigth (mm) of the liquid from the botom of the tube.
+distance_interstice_to_bottom = 14                      # To obtain this value, add 400uL of water to an empty tube of the "samples_plate_type" and measure the heigth (mm) of the liquid from the botom of the tube.
 ############################################################
 
 
