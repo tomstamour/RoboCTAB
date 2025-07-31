@@ -1198,7 +1198,7 @@ def run(ctx):
                         dispensing_chloroform()
                         ctx.pause('''Mix (vortex carefully) then centrifugate the plate (6000rpm, 10 min).''')
                     
-                    ctx.pause('''Place empty plates (1.0ml 96-Deep well)s on sites 4, 5, 6 & 10 (identify the plates and mark site number)''')
+                    ctx.pause('''Remove reservoir on site 10 and place empty plates (96-Deep wells) on sites 4, 5, 6 & 10 (identify the plates and mark site number)''')
 
                     for tiprack in [tiprack_1, tiprack_2, tiprack_3, tiprack_4]:
                         ctx.move_labware(labware = tiprack, new_location = protocol_api.OFF_DECK)
